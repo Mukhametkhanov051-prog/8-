@@ -1,0 +1,245 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy 8 March</title>
+
+<style>
+body{
+margin:0;
+background:black;
+overflow:hidden;
+font-family:sans-serif;
+color:white;
+text-align:center;
+}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:-2;
+}
+
+#hearts{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+pointer-events:none;
+z-index:-1;
+}
+
+.screen{
+position:absolute;
+width:100%;
+height:100%;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+transition:opacity 1s;
+}
+
+.hidden{opacity:0;pointer-events:none}
+
+.title{font-size:42px}
+.text{font-size:28px}
+
+.book{
+width:90%;
+max-width:420px;
+display:flex;
+perspective:1200px;
+}
+
+.page{
+width:50%;
+transition:transform 1s;
+transform-origin:left;
+}
+
+.page img{
+width:100%;
+border-radius:10px;
+}
+
+#page2{transform-origin:right}
+
+.heart-container{
+position:relative;
+width:320px;
+height:300px;
+}
+
+.photo{
+position:absolute;
+width:70px;
+border-radius:8px;
+opacity:0;
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="stars"></canvas>
+<div id="hearts"></div>
+
+<audio autoplay loop>
+<source src="music.mp3">
+</audio>
+
+<div id="s1" class="screen">
+<div class="title">Happy 8 March</div>
+</div>
+
+<div id="s2" class="screen hidden">
+<div class="text">С 8 марта матурым</div>
+</div>
+
+<div id="s3" class="screen hidden">
+
+<div class="book">
+<div class="page" id="page1">
+<img src="1.jpg">
+</div>
+<div class="page" id="page2">
+<img src="2.jpg">
+</div>
+</div>
+
+</div>
+
+<div id="s4" class="screen hidden">
+
+<div class="book">
+<div class="page">
+<img src="3.jpg">
+</div>
+<div class="page">
+<img src="4.jpg">
+</div>
+</div>
+
+</div>
+
+<div id="s5" class="screen hidden">
+
+<div class="heart-container" id="heart"></div>
+
+</div>
+
+<script>
+
+/* сцены */
+
+setTimeout(()=>{s1.classList.add("hidden");s2.classList.remove("hidden")},3000)
+setTimeout(()=>{s2.classList.add("hidden");s3.classList.remove("hidden")},6000)
+setTimeout(()=>{s3.classList.add("hidden");s4.classList.remove("hidden")},11000)
+setTimeout(()=>{s4.classList.add("hidden");s5.classList.remove("hidden");createHeart()},16000)
+
+/* звезды */
+
+const canvas=document.getElementById("stars")
+const ctx=canvas.getContext("2d")
+
+canvas.width=window.innerWidth
+canvas.height=window.innerHeight
+
+let stars=[]
+for(let i=0;i<150;i++){
+stars.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+r:Math.random()*2
+})
+}
+
+function drawStars(){
+ctx.clearRect(0,0,canvas.width,canvas.height)
+ctx.fillStyle="white"
+
+stars.forEach(s=>{
+ctx.beginPath()
+ctx.arc(s.x,s.y,s.r,0,Math.PI*2)
+ctx.fill()
+})
+
+requestAnimationFrame(drawStars)
+}
+
+drawStars()
+
+/* летающие сердечки */
+
+function spawnHeart(){
+const h=document.createElement("div")
+h.innerHTML="❤️"
+h.style.position="absolute"
+h.style.left=Math.random()*window.innerWidth+"px"
+h.style.top=window.innerHeight+"px"
+h.style.fontSize="24px"
+h.style.opacity=0.8
+
+hearts.appendChild(h)
+
+let y=window.innerHeight
+
+let i=setInterval(()=>{
+y-=2
+h.style.top=y+"px"
+if(y<-50){
+clearInterval(i)
+h.remove()
+}
+},16)
+}
+
+setInterval(spawnHeart,800)
+
+/* сердце из фото */
+
+function heartShape(t){
+return {
+x:16*Math.pow(Math.sin(t),3),
+y:-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))
+}
+}
+
+function createHeart(){
+
+let container=document.getElementById("heart")
+
+for(let i=1;i<=20;i++){
+
+let img=document.createElement("img")
+img.src=i+".jpg"
+img.className="photo"
+
+container.appendChild(img)
+
+let t=i/20*Math.PI*2
+let p=heartShape(t)
+
+let x=160+p.x*8
+let y=150+p.y*8
+
+setTimeout(()=>{
+img.style.left=x+"px"
+img.style.top=y+"px"
+img.style.opacity=1
+},i*150)
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
